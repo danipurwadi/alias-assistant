@@ -2,8 +2,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <regex.h>
-#define tofind    "\\s([a-z]+)="
 
 char *get_alias_name(const char *s) {
     int start_idx = 6;
@@ -159,9 +157,12 @@ int main(int argc, char *argv[]) {
     int i = 1; // skip the first arg since it's only program name
     while (i < argc) {
         if (strcmp(argv[i], "-h") == 0) {
-            printf("-a <alias_name> <alias_cmd> add new alias in zshrc \n");
-            printf("-l list out all aliases in zshrc\n");
-            printf("-f <alias_name> find and print out alias in zshrc (if exist)\n");
+            printf("Alias Assistant 1.0.0 by danipurwadi\n");
+            printf("Usage: main [arguments]\n");
+            printf("Arguments:\n");
+            printf("  -a <alias_name> <alias_cmd> add new alias in zshrc \n");
+            printf("  -l list out all aliases in zshrc\n");
+            printf("  -f <alias_name> find and print out alias in zshrc (if exist)\n");
         } else if (strcmp(argv[i], "-l") == 0) {
             print_bash_file();
         } else if (strcmp(argv[i], "-f") == 0) {
