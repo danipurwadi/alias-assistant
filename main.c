@@ -20,9 +20,7 @@ char *get_alias_name(const char *s) {
     int len = end_idx - start_idx;
     char *alias_name = malloc(len);
     strncpy(alias_name, s + start_idx, len);
-
-    free(alias_name);
-    return NULL;
+    return alias_name;
 }
 
 char *get_alias_cmd(const char *s) {
@@ -56,10 +54,7 @@ char *get_alias_cmd(const char *s) {
     int len = end_idx - start_idx;
     char *alias_cmd = malloc(len);
     strncpy(alias_cmd, s + start_idx, len);
-
-    printf("%d %d | %s\n", start_idx, end_idx, alias_cmd);
-    free(alias_cmd);
-    return NULL;
+    return alias_cmd;
 }
 
 
@@ -73,6 +68,16 @@ bool starts_with(const char *pre, const char *str) {
 void add_alias_to_bash(char *args) {
     printf("Enter the arguments: ");
     scanf("%s", args);
+}
+
+void pretty_print(char *s1, char *s2) {
+    int MAX_S1_LENGTH = 15;
+
+    printf("%s", s1);
+    for(int i = 0; i < MAX_S1_LENGTH - strlen(s1); i++) {
+        printf(" ");
+    }
+    printf(" | %s\n", s2);
 }
 
 void read_bash_file() {
@@ -96,7 +101,9 @@ void read_bash_file() {
 
             char *alias_name = get_alias_name(line);
             char *alias_cmd = get_alias_cmd(line);
-
+            pretty_print(alias_name, alias_cmd);
+            free(alias_name);
+            free(alias_cmd);
         }
     } else {
         printf("Error opening file\n");
@@ -142,6 +149,5 @@ int main(int argc, char *argv[]) {
         }
         i++;
     }
-    printf("Finished executing program...\n");
     return 0;
 }
