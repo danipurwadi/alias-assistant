@@ -65,9 +65,22 @@ bool starts_with(const char *pre, const char *str) {
     return false;
 }
 
-void add_alias_to_bash(char *args) {
-    printf("Enter the arguments: ");
-    scanf("%s", args);
+void add_alias_to_bash(char *alias_name, char *alias_cmd) {
+    printf("adding alias [%s] to command [%s]\n", alias_name, alias_cmd);
+    int WRITE_TO_LINE_NO = 5;
+    FILE *file;
+    char *home = getenv("HOME");
+    char file_name[] = "/.zshrc";
+    strcat(home, file_name);
+
+    file = fopen(home, "a");
+    char line[1000];
+
+    if (file == NULL) {
+        fprintf(stderr, "Error opening file %s\n", home);
+    }
+    fprintf(file, "alias %s=\"%s\"\n", alias_name, alias_cmd);
+    fclose(file);
 }
 
 void pretty_print(char *s1, char *s2) {
@@ -146,7 +159,9 @@ int main(int argc, char *argv[]) {
     int i = 1; // skip the first arg since it's only program name
     while (i < argc) {
         if (strcmp(argv[i], "-h") == 0) {
-            printf("Help option\n");
+            printf("-a <alias_name> <alias_cmd> add new alias in zshrc \n");
+            printf("-l list out all aliases in zshrc\n");
+            printf("-f <alias_name> find and print out alias in zshrc (if exist)\n");
         } else if (strcmp(argv[i], "-l") == 0) {
             print_bash_file();
         } else if (strcmp(argv[i], "-f") == 0) {
@@ -154,8 +169,10 @@ int main(int argc, char *argv[]) {
             find_alias(name);
             i++;
         } else if (strcmp(argv[i], "-a") == 0) {
-            char arg[100];
-            add_alias_to_bash(arg);
+            char *alias_name = argv[i + 1];
+            char *alias_cmd = argv[i + 2];
+            add_alias_to_bash(alias_name, alias_cmd);
+            i += 2;
         } else {
             printf("Invalid option\n");
         }
