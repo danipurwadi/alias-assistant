@@ -1,6 +1,74 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <regex.h>
+#define tofind    "\\s([a-z]+)="
+
+char *get_alias_name(const char *s) {
+    int start_idx = 6;
+    int end_idx;
+
+    for (int i = 0; i < strlen(s); i++) {
+        // find index of the first = sign as end index
+        if (s[i] == '=') {
+            end_idx = i;
+            break;
+        }
+    }
+
+    int len = end_idx - start_idx;
+    char *alias_name = malloc(len);
+    strncpy(alias_name, s + start_idx, len);
+
+    free(alias_name);
+    return NULL;
+}
+
+char *get_alias_cmd(const char *s) {
+    char opening_bracket = '\0';
+    int start_idx;
+    int end_idx;
+
+    for (int i = 0; i < strlen(s); i++) {
+        if (s[i] == '"') {
+            if (opening_bracket == '\0') {
+                opening_bracket = '"';
+                start_idx = i + 1;
+                continue;
+            } else if (opening_bracket == '\'') {
+                continue;
+            }
+
+            end_idx = i;
+        } else if (s[i] == '\'') {
+            if (opening_bracket == '\0') {
+                opening_bracket = '\'';
+                start_idx = i + 1;
+                continue;
+            } else if (opening_bracket == '"') {
+                continue;
+            }
+
+            end_idx = i;
+        }
+    }
+    int len = end_idx - start_idx;
+    char *alias_cmd = malloc(len);
+    strncpy(alias_cmd, s + start_idx, len);
+
+    printf("%d %d | %s\n", start_idx, end_idx, alias_cmd);
+    free(alias_cmd);
+    return NULL;
+}
+
+
+bool starts_with(const char *pre, const char *str) {
+    if(strncmp(str, pre, strlen(pre)) == 0) {
+        return true;
+    }
+    return false;
+}
 
 void add_alias_to_bash(char *args) {
     printf("Enter the arguments: ");
@@ -11,15 +79,44 @@ void read_bash_file() {
     FILE *file;
     char *home = getenv("HOME");
     char file_name[] = "/.zshrc";
-
-    
     strcat(home, file_name);
+
     file = fopen(home, "r");
-    char myFile[1000];
+    char line[1000];
 
     if (file != NULL) {
-        while (fgets(myFile, 1000, file) != NULL) {
-            printf("%s", myFile);
+        while (fgets(line, 1000, file) != NULL) {
+            // skip commneted out lines
+            if (starts_with("#", line) == 1) {
+                continue;
+            }
+            if (starts_with("alias", line) != 1) {
+                continue;
+            }
+
+            char *alias_name = get_alias_name(line);
+            char *alias_cmd = get_alias_cmd(line);
+
+        }
+    } else {
+        printf("Error opening file\n");
+    }
+    fclose(file);
+}
+
+void find_alias() {
+    FILE *file;
+    char *home = getenv("HOME");
+    char file_name[] = "/.zshrc";
+    strcat(home, file_name);
+
+    file = fopen(home, "r");
+    char line[1000];
+    if (file != NULL) {
+        while (fgets(line, 1000, file) != NULL) {
+            if (starts_with("alias", line) == 1) {
+                printf("%s", line);
+            }
         }
     } else {
         printf("Error opening file\n");
@@ -30,7 +127,6 @@ void read_bash_file() {
 
 
 int main(int argc, char *argv[]) {
-    printf("no of arguments: %d\n", argc);
     int i = 1; // skip the first arg since it's only program name
     while (i < argc) {
         if (strcmp(argv[i], "-h") == 0) {
