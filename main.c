@@ -80,7 +80,7 @@ void pretty_print(char *s1, char *s2) {
     printf(" | %s\n", s2);
 }
 
-void read_bash_file() {
+void print_bash_file() {
     FILE *file;
     char *home = getenv("HOME");
     char file_name[] = "/.zshrc";
@@ -111,7 +111,8 @@ void read_bash_file() {
     fclose(file);
 }
 
-void find_alias() {
+void find_alias(char alias_name[]) {
+    printf("finding alias: %s...\n", alias_name);
     FILE *file;
     char *home = getenv("HOME");
     char file_name[] = "/.zshrc";
@@ -121,9 +122,18 @@ void find_alias() {
     char line[1000];
     if (file != NULL) {
         while (fgets(line, 1000, file) != NULL) {
-            if (starts_with("alias", line) == 1) {
-                printf("%s", line);
+            if (starts_with("alias", line) != 1) {
+                continue;
             }
+            char *curr_alias_name = get_alias_name(line);
+            if(strcmp(curr_alias_name, alias_name) == 0) {
+                char *alias_cmd = get_alias_cmd(line);
+                pretty_print(curr_alias_name, alias_cmd);
+                free(curr_alias_name);
+                free(alias_cmd);
+                break;
+            }
+            free(curr_alias_name);
         }
     } else {
         printf("Error opening file\n");
@@ -132,15 +142,17 @@ void find_alias() {
     fclose(file);
 }
 
-
 int main(int argc, char *argv[]) {
     int i = 1; // skip the first arg since it's only program name
     while (i < argc) {
         if (strcmp(argv[i], "-h") == 0) {
             printf("Help option\n");
         } else if (strcmp(argv[i], "-l") == 0) {
-            printf("Reading from bash file\n");
-            read_bash_file();
+            print_bash_file();
+        } else if (strcmp(argv[i], "-f") == 0) {
+            char *name = argv[i + 1];
+            find_alias(name);
+            i++;
         } else if (strcmp(argv[i], "-a") == 0) {
             char arg[100];
             add_alias_to_bash(arg);
